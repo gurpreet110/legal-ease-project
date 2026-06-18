@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --obsidian: #0A0A0F;
+  --ink: #111118;
+  --slate: #1A1A26;
+  --border: #2E2E4A;
+  --gold: #C9A84C;
+  --gold-light: #E8C96A;
+  --amber: #E8A835;
+  --cream: #F0E6D0;
+  --text: #E8E0D0;
+  --text-muted: #8A8470;
+  --text-dim: #5A5445;
+  --red: #E05252;
+  --orange: #E8823A;
+  --green: #4CAF78;
+  --blue: #5B8FE8;
+  --purple: #9B6BE8;
+}
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body { background: var(--obsidian); color: var(--text); font-family: 'Crimson Pro', Georgia, serif; line-height: 1.6; overflow-x: hidden; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+::selection { background: rgba(201,168,76,0.3); color: var(--cream); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+@keyframes fadeIn   { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+@keyframes spin     { to { transform: rotate(360deg) } }
+@keyframes bounce   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes pulse    { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.fade-in { animation: fadeIn 0.3s ease forwards; }

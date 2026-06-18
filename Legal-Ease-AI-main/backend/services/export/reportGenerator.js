@@ -1,0 +1,142 @@
+const PDFDocument = require("pdfkit");
+
+const COLORS = {
+  obsidian: "#0A0A0F",
+  ink:      "#111118",
+  gold:     "#C9A84C",
+  cream:    "#F0E6D0",
+  textMuted:"#8A8470",
+  red:      "#E05252",
+  orange:   "#E8823A",
+  amber:    "#E8A835",
+  green:    "#4CAF78",
+};
+
+const SEVERITY_COLORS = { HIGH: COLORS.red, MEDIUM: COLORS.orange, LOW: COLORS.amber };
+
+/**
+ * Generate a branded PDF report as a Buffer.
+ */
+async function generatePDFReport(analysis, contractFilename) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 50, size: "A4", bufferPages: true });
+    const chunks = [];
+
+    doc.on("data", (c) => chunks.push(c));
+    doc.on("end",  () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    // ── Cover ────────────────────────────────────────────────────────────────
+    doc.rect(0, 0, doc.page.width, 120).fill(COLORS.ink);
+    doc.fillColor(COLORS.gold).fontSize(28).font("Helvetica-Bold")
+       .text("⚖  LegalEase", 50, 35);
+    doc.fillColor(COLORS.cream).fontSize(14).font("Helvetica")
+       .text("AI Contract Risk Report", 50, 70);
+    doc.fillColor(COLORS.textMuted).fontSize(10)
+       .text(`File: ${contractFilename}`, 50, 95)
+       .text(`Generated: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}`, 300, 95);
+
+    doc.moveDown(4);
+
+    // ── Health Score ─────────────────────────────────────────────────────────
+    const score = analysis.healthScore || 0;
+    const scoreColor = score < 30 ? COLORS.red : score < 60 ? COLORS.orange : COLORS.green;
+    const scoreLabel = score < 30 ? "Dangerous" : score < 50 ? "High Risk" : score < 75 ? "Moderate" : "Safe";
+
+    doc.roundedRect(50, doc.y, 495, 60, 8).fill(COLORS.ink);
+    doc.fillColor(scoreColor).fontSize(36).font("Helvetica-Bold")
+       .text(`${score}`, 80, doc.y - 50, { continued: true });
+    doc.fillColor(COLORS.cream).fontSize(20).font("Helvetica")
+       .text(`  / 100`, { continued: true });
+    doc.fillColor(scoreColor).fontSize(14)
+       .text(`  ${scoreLabel}`, { align: "left" });
+
+    doc.moveDown(2);
+
+    // ── Stats ────────────────────────────────────────────────────────────────
+    const stats = analysis.stats || {};
+    sectionHeader(doc, "Risk Overview");
+    doc.fillColor(COLORS.cream).fontSize(11).font("Helvetica")
+       .text(`Total risky clauses: ${stats.total || 0}   ·   HIGH: ${stats.high || 0}   ·   MEDIUM: ${stats.medium || 0}   ·   LOW: ${stats.low || 0}`);
+    doc.moveDown();
+
+    // ── Summary ──────────────────────────────────────────────────────────────
+    const summary = analysis.summary;
+    const summaryText =
+      typeof summary === "object"
+        ? summary.detailed_summary || summary.short_summary || ""
+        : String(summary || "");
+
+    if (summaryText) {
+      sectionHeader(doc, "Executive Summary");
+      doc.fillColor(COLORS.cream).fontSize(11).font("Helvetica")
+         .text(summaryText, { lineGap: 4 });
+      doc.moveDown();
+    }
+
+    // ── Clauses ──────────────────────────────────────────────────────────────
+    const clauses = analysis.clauses || [];
+    if (clauses.length) {
+      sectionHeader(doc, "Detailed Clause Analysis");
+
+      for (let i = 0; i < clauses.length; i++) {
+        const c = clauses[i];
+        const sColor = SEVERITY_COLORS[c.severity] || COLORS.amber;
+
+        // Severity badge + title
+        doc.roundedRect(50, doc.y, 495, 30, 4).fill(COLORS.ink);
+        doc.fillColor(sColor).fontSize(10).font("Helvetica-Bold")
+           .text(`[${c.severity}]`, 60, doc.y - 22, { continued: true, width: 60 });
+        doc.fillColor(COLORS.cream).fontSize(11)
+           .text(`  ${i + 1}. ${c.title || "Untitled"}`, { width: 420 });
+
+        // Type tag
+        doc.fillColor(COLORS.textMuted).fontSize(9).font("Helvetica")
+           .text(`Category: ${c.type || "General"}`, { indent: 10 });
+
+        // Original text
+        if (c.text) {
+          doc.fillColor(COLORS.textMuted).fontSize(9).font("Helvetica-Oblique")
+             .text(`"${c.text.slice(0, 300)}${c.text.length > 300 ? "..." : ""}"`, { indent: 10, lineGap: 2 });
+        }
+
+        // Explanation
+        if (c.explanation) {
+          doc.fillColor(sColor).fontSize(9).font("Helvetica-Bold").text("Risk:", { indent: 10, continued: true });
+          doc.fillColor(COLORS.cream).font("Helvetica").text(` ${c.explanation}`, { lineGap: 2 });
+        }
+
+        // Suggestion
+        if (c.suggestion) {
+          doc.fillColor(COLORS.green).fontSize(9).font("Helvetica-Bold").text("Suggestion:", { indent: 10, continued: true });
+          doc.fillColor(COLORS.cream).font("Helvetica").text(` ${c.suggestion}`, { lineGap: 2 });
+        }
+
+        doc.moveDown();
+      }
+    }
+
+    // ── Disclaimer ───────────────────────────────────────────────────────────
+    doc.addPage();
+    sectionHeader(doc, "Disclaimer");
+    doc.fillColor(COLORS.textMuted).fontSize(9).font("Helvetica")
+       .text(
+         "This report is generated by LegalEase AI for informational purposes only. " +
+         "It does not constitute legal advice. Always consult a qualified legal professional " +
+         "before signing any contract. LegalEase and its creators are not liable for any " +
+         "decisions made based on this report.",
+         { lineGap: 3 }
+       );
+
+    doc.end();
+  });
+}
+
+function sectionHeader(doc, title) {
+  doc.fillColor(COLORS.gold).fontSize(13).font("Helvetica-Bold")
+     .text(title);
+  doc.moveTo(50, doc.y).lineTo(545, doc.y).strokeColor(COLORS.gold).lineWidth(0.5).stroke();
+  doc.moveDown(0.5);
+}
+
+module.exports = { generatePDFReport };

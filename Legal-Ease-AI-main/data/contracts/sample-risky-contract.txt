@@ -1,0 +1,27 @@
+SERVICE AGREEMENT
+
+This Service Agreement ("Agreement") is entered into as of January 1, 2025, between TechCorp Inc. ("Service Provider") and ClientCo Ltd. ("Client").
+
+1. SERVICES
+Service Provider shall perform software development services as mutually agreed. The scope may be modified unilaterally by Service Provider with 24 hours notice.
+
+2. PAYMENT TERMS
+Client shall pay all invoices within 7 days. Late payments incur 5% monthly interest. Service Provider may suspend services immediately upon any payment delay. Client waives all rights to dispute invoices after 48 hours of receipt.
+
+3. INTELLECTUAL PROPERTY
+All work product, inventions, and developments created under this Agreement shall be the sole and exclusive property of Service Provider. Client receives no license or rights to any deliverables unless separately negotiated in writing.
+
+4. TERMINATION
+Service Provider may terminate this Agreement at any time for any reason with immediate effect. Client may only terminate after 180 days written notice and must pay all remaining fees for the full contract period.
+
+5. LIABILITY LIMITATION
+Service Provider's total liability shall not exceed $100 regardless of damages. Client indemnifies Service Provider against all third-party claims. Service Provider bears no liability for data loss, security breaches, or service interruptions.
+
+6. CONFIDENTIALITY
+Client agrees to keep all information about Service Provider confidential indefinitely. Service Provider may freely share Client's proprietary information with third parties for business purposes.
+
+7. GOVERNING LAW
+This Agreement shall be governed by the laws of a jurisdiction chosen solely by Service Provider at time of dispute. All disputes shall be resolved by arbitration, with Client bearing all costs.
+
+8. AMENDMENTS
+Service Provider may modify any terms of this Agreement at any time without notice. Continued use of services constitutes acceptance of any modifications.
